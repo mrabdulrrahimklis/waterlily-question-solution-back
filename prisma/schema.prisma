@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum QuestionType {
+  checkbox
+  answer
+  bullet
+}
+
+model Pool {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+
+  questions Question[]
+  submits   Submit[]
+}
+
+model Question {
+  id        Int          @id @default(autoincrement())
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  title     String
+  content   String
+  type      QuestionType
+
+  answers Answer[]
+
+  QuestionPool Pool @relation(fields: [poolId], references: [id])
+  poolId       Int
+}
+
+model Answer {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String
+  isCorrect Boolean
+
+  Question   Question @relation(fields: [questionId], references: [id])
+  questionId Int
+}
+
+model Submit {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  answers   Json[]
+
+  Pool   Pool @relation(fields: [poolId], references: [id])
+  poolId Int
+}
